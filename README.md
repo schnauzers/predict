@@ -29,7 +29,7 @@ python getrecord.py "LeBron James"
 
 ## Results
 
-After executing the program, you will get the records of the player you are in fond of:
+After executing the program, you will get the records of the player you are fond of:
 
 ```
 Points:
