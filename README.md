@@ -13,7 +13,7 @@ Please download the windows binary file from here, and run it in a command windo
 nbarecord.exe "LeBron James"
 ```
 
- ### Run from Python
+### Run from Python
 
 After all, You need a Python3 environment,  and install following libs:
 
