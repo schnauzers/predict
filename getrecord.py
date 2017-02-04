@@ -15,7 +15,7 @@ def FetchData(Player, PageLink, DataList):
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)\
 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'}
     print("Retrieving data from: " + PageLink + "...")
-    response = requests.get(PageLink, headers = headers)
+    response = requests.get(PageLink, headers=headers)
     print(response)
     soup = BeautifulSoup(response.text, "lxml")
     # print(soup.a)
@@ -102,7 +102,8 @@ def ShowData(Player, DataPlane):
 
         if Player in Info.keys() and item[0] in Info[Player].keys():
             print("-----------------Last Time------------------")
-            print("%-10s %-22s %10s" % (Info[Player][item[0]][0].replace(u'\xa0', u' '),
+            print("%-10s %-22s %10s" % (Info[Player][item[0]][0].
+                  replace(u'\xa0', u' '),
                   Info[Player][item[0]][1],
                   Info[Player][item[0]][2]))
             # print(Info[Player][item[0]])

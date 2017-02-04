@@ -63,3 +63,4 @@ target/
 
 history.txt
 nbarecord.exe
+*.swp
