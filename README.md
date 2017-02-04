@@ -7,7 +7,7 @@ This program aims to gain an NBA player's sorts of records.
 
 ### Run from binary
 
-Please download the windows binary file from here, and run it in a command window:
+Please download the windows binary file from [here](https://github.com/schnauzers/predict/files/752129/nbarecord.zip), and run it in a command window:
 
 ```
 nbarecord.exe "LeBron James"
