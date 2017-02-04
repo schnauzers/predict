@@ -2,6 +2,7 @@ import requests
 import json
 import sys
 import os
+import time
 from bs4 import BeautifulSoup
 from colorama import init, Fore
 
@@ -11,7 +12,11 @@ from colorama import init, Fore
 
 
 def FetchData(Player, PageLink, DataList):
-    response = requests.get(PageLink)
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)\
+AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'}
+    print("Retrieving data from: " + PageLink + "...")
+    response = requests.get(PageLink, headers = headers)
+    print(response)
     soup = BeautifulSoup(response.text, "lxml")
     # print(soup.a)
 
@@ -91,11 +96,13 @@ def ShowData(Player, DataPlane):
     for item in DataPlane:
         print(Fore.LIGHTRED_EX + str(item[0]))
         for content in item[2]:
-            print("%-10s %-22s %10s" % (content[0], content[1], content[2]))
+            # content[0].replace(u'\xa0', u' ')解决windows窗口不能打印unicode字符\xa0的问题
+            print("%-10s %-22s %10s" % (content[0].replace(u'\xa0', u' '),
+                  content[1], content[2]))
 
         if Player in Info.keys() and item[0] in Info[Player].keys():
             print("-----------------Last Time------------------")
-            print("%-10s %-22s %10s" % (Info[Player][item[0]][0],
+            print("%-10s %-22s %10s" % (Info[Player][item[0]][0].replace(u'\xa0', u' '),
                   Info[Player][item[0]][1],
                   Info[Player][item[0]][2]))
             # print(Info[Player][item[0]])
@@ -103,6 +110,7 @@ def ShowData(Player, DataPlane):
 
 
 if __name__ == '__main__':
+    requests.adapters.DEFAULT_RETRIES = 10
     if len(sys.argv) == 1:
         Player = "Kevin Durant"
     elif len(sys.argv) == 2:
@@ -122,6 +130,7 @@ if __name__ == '__main__':
 
     for item in DataPlane:
         FetchData(Player, item[1], item[2])
+        time.sleep(3)
     # FetchData(DataPlane[0][1], DataPlane[0][2])
     ShowData(Player, DataPlane)
     DumpHistory(Player, DataPlane)
