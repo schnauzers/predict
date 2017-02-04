@@ -1,5 +1,6 @@
 import requests
 import json
+import sys
 import os
 from bs4 import BeautifulSoup
 from colorama import init, Fore
@@ -24,7 +25,14 @@ def FetchData(Player, PageLink, DataList):
         # print("Not on list")
         return
 
-    TagLine = Result.parent.parent
+    # print("Result Parent: ", str(Result.parent.name))
+    # 现役球员会用strong标签标出，因此需要做特殊处理
+    if Result.parent.name == "strong":
+        TagLine = Result.parent.parent
+    else:
+        TagLine = Result.parent
+
+    # print("TagLine: ", str(TagLine))
     PlayerName = Result.string
     Rank = TagLine.previous_sibling.previous_sibling.string
     Data = TagLine.next_sibling.string
@@ -32,6 +40,10 @@ def FetchData(Player, PageLink, DataList):
 
     # 初始化TagLine
     TagLine = TagLine.parent.previous_sibling.previous_sibling
+    if str(Rank) == '1.':
+        # print("no more!")
+        return
+
     # 循环找到前面几个运动员的数据，一并显示
     for i in range(1, 20):
         PlayerName = TagLine.a.string
@@ -44,29 +56,34 @@ def FetchData(Player, PageLink, DataList):
             break
         TagLine = TagLine.previous_sibling.previous_sibling
 
-    # print(DataList)
-
 
 # 存储本次抓取的球员数据
 def DumpHistory(Player, DataPlane):
     Info = {}
+    Data = {}
+    if os.path.exists("history.txt"):
+        with open("history.txt", "r") as f:
+            history = f.read()
+            if len(history) != 0:
+                Info.update(json.loads(history))
+
     for item in DataPlane:
         # print(item[0])
-        # print(item[2])
         if len(item[2]) != 0:
             # print(item[2][-1])
-            Info[item[0]] = item[2][-1]
+            Data[item[0]] = item[2][-1]
+    Info[Player] = Data
     # print("info:")
     # print(Info)
-    with open("history.text", "w") as f:
+    with open("history.txt", "w") as f:
         f.write(json.dumps(Info))
 
 
-def ShowData(DataPlane):
+def ShowData(Player, DataPlane):
     init(autoreset=True)
     Info = {}
-    if os.path.exists("history.text"):
-            with open("history.text", "r") as f:
+    if os.path.exists("history.txt"):
+            with open("history.txt", "r") as f:
                 history = f.read()
             if len(history) != 0:
                 Info.update(json.loads(history))
@@ -74,17 +91,25 @@ def ShowData(DataPlane):
     for item in DataPlane:
         print(Fore.LIGHTRED_EX + str(item[0]))
         for content in item[2]:
-            print("%-10s %-20s %10s" % (content[0], content[1], content[2]))
+            print("%-10s %-22s %10s" % (content[0], content[1], content[2]))
 
-        if item[0] in Info.keys():
-            print("----------------Last Time-----------------")
-            print("%-10s %-20s %10s" % (Info[item[0]][0], Info[item[0]][1],
-                  Info[item[0]][2]))
-            # print(Info[item[0]])
-        print("------------------------------------------")
+        if Player in Info.keys() and item[0] in Info[Player].keys():
+            print("-----------------Last Time------------------")
+            print("%-10s %-22s %10s" % (Info[Player][item[0]][0],
+                  Info[Player][item[0]][1],
+                  Info[Player][item[0]][2]))
+            # print(Info[Player][item[0]])
+        print("--------------------------------------------")
 
 
 if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        Player = "Kevin Durant"
+    elif len(sys.argv) == 2:
+        Player = sys.argv[1]
+    else:
+        print("Too many parameters, please pass one parameter as player name!")
+        sys.exit()
     prefix = "http://www.basketball-reference.com/leaders/"
     DataPlane = (
                 ("Points:", prefix + "pts_career.html", []),
@@ -96,7 +121,7 @@ if __name__ == '__main__':
                 )
 
     for item in DataPlane:
-        FetchData("Kevin Durant", item[1], item[2])
+        FetchData(Player, item[1], item[2])
     # FetchData(DataPlane[0][1], DataPlane[0][2])
-    ShowData(DataPlane)
-    DumpHistory('Kevin Durant', DataPlane)
+    ShowData(Player, DataPlane)
+    DumpHistory(Player, DataPlane)
